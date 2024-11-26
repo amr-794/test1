@@ -1,0 +1,164 @@
+/* General Styles */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+    background: linear-gradient(120deg, #1e3c72, #2a5298);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+    animation: fadeInDown 1s ease;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin: 0;
+}
+
+header p {
+    font-size: 1.2rem;
+    margin: 5px 0;
+}
+
+main {
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+    text-align: center;
+}
+
+#upload-container {
+    border: 3px dashed rgba(255, 255, 255, 0.6);
+    border-radius: 10px;
+    padding: 40px;
+    background: rgba(0, 0, 0, 0.2);
+    transition: background 0.3s ease, transform 0.3s ease;
+    cursor: pointer;
+}
+
+#upload-container:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+}
+
+#progress-bar {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    height: 15px;
+    margin: 20px auto;
+    overflow: hidden;
+    animation: fadeInUp 1s ease;
+}
+
+#progress {
+    height: 100%;
+    width: 0;
+    background: #00ffab;
+    transition: width 0.4s ease-in-out;
+}
+
+#link-container {
+    margin-top: 20px;
+    animation: fadeInUp 1s ease;
+}
+
+#link-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+#share-link {
+    flex-grow: 1;
+    padding: 10px;
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    text-align: center;
+    font-size: 1em;
+    border-radius: 5px;
+    outline: none;
+}
+
+#copy-btn {
+    padding: 10px 20px;
+    background: #00ffab;
+    color: #001f3f;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+#copy-btn:hover {
+    background: #00c97b;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 2rem;
+    }
+    header p {
+        font-size: 1rem;
+    }
+    #upload-container {
+        padding: 30px;
+    }
+}
+
+/* Animations */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+body.dark {
+    background: linear-gradient(120deg, #000428, #004e92);
+    color: #ddd;
+}
+
+#theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 15px;
+    background: #ff8c00;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#theme-toggle:hover {
+    background: #ff6000;
+}
