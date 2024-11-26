@@ -1,0 +1,24 @@
+---------------------------------------------------
+Here are the ownership and the certification details
+of the Amoora 1.0
+---------------------------------------------------
+
+app_name - 						Amoora
+app_alias - 					amoora
+app_author_name - 				My Company
+app_author_organizational - 	My Company
+app_author_organization - 		My Company
+app_author_locality - 			My Company
+app_author_state - 				Al Qahirah
+app_author_country - 			Egypt
+app_password - 					sKwMFQj9xEk4
+app_versionName - 				versionName "1.0"
+app_versionCode - 				100
+
+---------------------------------------------------
+The certification was created by WebIntoApp.com at
+the Thursday 7th of November 2024 08:13:04 PM
+
+https://www.webintoapp.com
+---------------------------------------------------
+
