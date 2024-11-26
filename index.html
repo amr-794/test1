@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elegant File Sharing</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <button id="theme-toggle">Toggle Theme</button>
+
+    <header>
+        <h1>Upload & Share Files</h1>
+        <p>Fast, secure, and elegant file sharing.</p>
+    </header>
+    <main>
+        <div id="particles-js"></div>
+
+        <div id="upload-container" onclick="document.getElementById('file-input').click()">
+            <p>Tap or Drag & Drop to Upload</p>
+            <input type="file" id="file-input" style="display: none;">
+        </div>
+        <div id="progress-bar" class="hidden">
+            <div id="progress"></div>
+        </div>
+        <div id="link-container" class="hidden">
+            <p>File uploaded! Share it with this link:</p>
+            <div id="link-box">
+                <input type="text" id="share-link" readonly>
+                <button id="copy-btn">Copy</button>
+            </div>
+        </div>
+        <div id="qr-container" class="hidden">
+            <canvas id="qr-code"></canvas>
+        </div>
+        
+    </main>
+    <footer>
+        <p>Designed with ❤️ for seamless sharing.</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
