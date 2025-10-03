@@ -1,6 +1,6 @@
 /* Responsive mobile-first styles, Arabic RTL */
 :root{
-  --bg:#0f1724; --card:#0b1220; --accent:#06b6d4; --muted:#9aa4b2; --glass: rgba(255,255,255,0.03);
+  --bg:#071023; --card:#071428; --accent:#06b6d4; --muted:#9aa4b2; --glass: rgba(255,255,255,0.03);
   --radius:14px;
 }
 *{box-sizing:border-box}
@@ -33,13 +33,14 @@ body{
 .field input, .field textarea{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
 .two-cols{display:flex;gap:8px}
 .muted{color:var(--muted);font-size:13px}
-.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.65))}
-.modal-card{width:95%;max-width:520px;background:var(--card);border-radius:14px;padding:16px;animation:slideUp .28s}
+.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.65));z-index:999}
+.modal-card{width:95%;max-width:520px;background:var(--card);border-radius:14px;padding:16px;animation:slideUp .28s;position:relative}
+.close-btn{position:absolute;left:14px;top:12px;border:0;background:transparent;color:var(--muted);font-size:16px;cursor:pointer;padding:6px;border-radius:8px}
 @keyframes slideUp{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
 @keyframes pop{from{transform:scale(.99)}to{transform:none}}
 .fade-in{animation:fade .6s}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-/* responsive */
+/* small responsive */
 @media(min-width:720px){
   body{padding:30px}
   .container{padding:18px}
