@@ -4,120 +4,52 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>منظم اليوم — Daily Master</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="app.css">
 </head>
 <body>
-  <!-- نافذة تسجيل الدخول -->
-  <div id="authModal" class="modal active">
+  <!-- شاشة تسجيل الدخول -->
+  <div id="authScreen" class="modal active">
     <div class="modal-content">
       <h2>تسجيل الدخول / إنشاء حساب</h2>
-      <form id="authForm">
-        <label>اسم المستخدم</label>
-        <input type="text" id="username" required>
-        
-        <label>كلمة المرور</label>
-        <input type="password" id="password" required>
-
-        <div class="actions">
-          <button type="submit" id="loginBtn">تسجيل دخول</button>
-          <button type="button" id="signupBtn">إنشاء حساب</button>
-        </div>
-      </form>
+      <input type="text" id="authUsername" placeholder="اسم المستخدم">
+      <input type="password" id="authPassword" placeholder="كلمة المرور">
+      <div class="modal-buttons">
+        <button id="loginBtn">تسجيل دخول</button>
+        <button id="signupBtn">إنشاء حساب</button>
+      </div>
     </div>
   </div>
 
-  <!-- التطبيق -->
-  <div id="app" class="hidden">
+  <!-- شاشة المنظم -->
+  <div id="appScreen" class="hidden">
     <header>
-      <h1>مرحباً بك 🩵</h1>
+      <h1>📅 منظم اليوم</h1>
       <button id="logoutBtn">تسجيل خروج</button>
     </header>
 
     <main>
-      <button id="addTaskBtn">➕ إضافة مهمة جديدة</button>
+      <section>
+        <h2>إضافة مهمة جديدة</h2>
+        <form id="taskForm">
+          <input id="taskTitle" type="text" placeholder="العنوان" required>
+          <input id="taskDate" type="date" required>
+          <input id="taskTime" type="time" required>
+          <input id="taskDuration" type="number" placeholder="المدة بالدقائق">
+          <textarea id="taskNote" placeholder="ملاحظات"></textarea>
+          <div class="form-buttons">
+            <button type="submit">حفظ</button>
+            <button type="button" id="cancelTaskBtn">إلغاء</button>
+          </div>
+        </form>
+      </section>
 
-      <div id="taskModal" class="modal">
-        <div class="modal-content">
-          <h2>مهمة جديدة</h2>
-          <form id="taskForm">
-            <label>العنوان</label>
-            <input type="text" id="taskTitle" required>
-
-            <label>تاريخ</label>
-            <input type="date" id="taskDate" required>
-
-            <label>الوقت</label>
-            <input type="time" id="taskTime" required>
-
-            <label>مدة (دقائق)</label>
-            <input type="number" id="taskDuration" required>
-
-            <label>ملاحظة</label>
-            <textarea id="taskNote"></textarea>
-
-            <div class="actions">
-              <button type="submit">حفظ</button>
-              <button type="button" id="cancelTaskBtn">إلغاء</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <ul id="tasksList"></ul>
+      <section>
+        <h2>مهامي</h2>
+        <ul id="tasksList"></ul>
+      </section>
     </main>
   </div>
 
   <script src="app.js"></script>
-</body>
-</html>
-
-  <!-- Task dialog -->
-  <div id="task-dialog" class="modal hidden" aria-hidden="true" role="dialog">
-    <div class="modal-card">
-      <button class="close-btn" id="task-close" aria-label="إغلاق" type="button">✖</button>
-      <h3 id="task-dialog-title">مهمة جديدة</h3>
-      <div class="field"><label>العنوان</label><input id="task-title" type="text" placeholder="العنوان"></div>
-      <div class="field two-cols">
-        <div><label>تاريخ</label><input id="task-date" type="date"></div>
-        <div><label>الوقت</label><input id="task-time" type="time"></div>
-      </div>
-      <div class="field"><label>مدة (دقائق)</label><input id="task-duration" type="number" min="1" value="30"></div>
-      <div class="field"><label>ملاحظة</label><textarea id="task-notes" rows="3"></textarea></div>
-      <div class="row-between">
-        <!-- ملاحظة: الزر "إلغاء" الآن لا يغلق النافذة بل يمسح الحقول -->
-        <button id="cancel-task" class="btn outline" type="button">إلغاء</button>
-        <button id="save-task" class="btn primary" type="button">حفظ</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- audio -->
-  <audio id="ding-sound" src="assets/ding.mp3" preload="auto"></audio>
-
-  <script src="app.js"></script>
-</body>
-</html>
-<!-- Task template dialog -->
-<div id="task-dialog" class="modal hidden">
-  <div class="modal-card">
-    <h3 id="task-dialog-title">مهمة جديدة</h3>
-    <div class="field"><label>العنوان</label><input id="task-title"></div>
-    <div class="field two-cols">
-      <div><label>تاريخ</label><input id="task-date" type="date"></div>
-      <div><label>الوقت</label><input id="task-time" type="time"></div>
-    </div>
-    <div class="field"><label>مدة (دقائق)</label><input id="task-duration" type="number" min="1" value="30"></div>
-    <div class="field"><label>ملاحظة</label><textarea id="task-notes"></textarea></div>
-    <div class="row-between">
-      <button id="save-task" class="btn primary">حفظ</button>
-      <button id="cancel-task" class="btn outline">إلغاء</button>
-    </div>
-  </div>
-</div>
-
-<!-- small sound -->
-<audio id="ding-sound" src="assets/ding.mp3" preload="auto"></audio>
-
-<script src="app.js"></script>
 </body>
 </html>
