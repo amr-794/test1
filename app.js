@@ -1,114 +1,67 @@
-/* تطبيق منظم اليوم - مكتوب بVanilla JS
- - حفظ في localStorage
- - إنشاء / تسجيل حساب (محلي) وتخزين بيانات المستخدم كـ JSON قابلة للتصدير
- - إشعارات: Notification API + fallback داخل التطبيق
- - تبويب مستقل للغد وتنشيطه
-*/
-const $ = q=>document.querySelector(q);
-const $$ = q=>document.querySelectorAll(q);
+<script>
+// عنصر النموذج
+const taskForm = document.getElementById("taskForm");
+const tasksList = document.getElementById("tasksList");
 
-let currentUser = null;
-let DB = { users: {} }; // loaded from bundled users.json or localStorage
+// دالة لحفظ المهمة
+function saveTask(e) {
+    e.preventDefault(); // منع تحديث الصفحة
 
-// Helpers
-function uid(len=8){return Math.random().toString(36).slice(2,2+len)}
-function nowISO(){return new Date().toISOString()}
+    const title = document.getElementById("taskTitle").value.trim();
+    const date = document.getElementById("taskDate").value;
+    const time = document.getElementById("taskTime").value;
+    const duration = document.getElementById("taskDuration").value;
+    const note = document.getElementById("taskNote").value.trim();
 
-// Init
-async function init(){
-  // load bundled users file if present
-  try{
-    const resp = await fetch('data/users.json');
-    if(resp.ok){
-      const bundled = await resp.json();
-      DB = bundled;
-      // merge with localStorage store if exists
-      const ls = localStorage.getItem('dm_db');
-      if(ls){ const par = JSON.parse(ls); DB = {...DB,...par}; }
-    } else loadFromLS();
-  } catch(e){ loadFromLS(); }
+    if (!title || !date || !time) {
+        alert("من فضلك أدخل البيانات كاملة");
+        return;
+    }
 
-  bindUI();
-  renderWelcome();
+    const newTask = {
+        id: Date.now(),
+        title,
+        date,
+        time,
+        duration,
+        note
+    };
+
+    // جلب المهام القديمة
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    tasks.push(newTask);
+
+    // حفظ في LocalStorage
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+
+    // إعادة عرض المهام
+    renderTasks();
+
+    // إعادة تعيين النموذج
+    taskForm.reset();
+
+    alert("✅ تم حفظ المهمة بنجاح!");
 }
 
-function loadFromLS(){ const ls = localStorage.getItem('dm_db'); if(ls){DB = JSON.parse(ls);} }
-
-function saveToLS(){ localStorage.setItem('dm_db', JSON.stringify(DB)); }
-
-// UI bindings
-function bindUI(){
-  $('#open-signup').addEventListener('click', openAuth);
-  $('#auth-toggle').addEventListener('click', toggleAuthMode);
-  $('#auth-submit').addEventListener('click', handleAuth);
-  $('#auth-modal').addEventListener('click', e=>{ if(e.target.id==='auth-modal') closeAuth() });
-  $('#create-sample-user').addEventListener('click', createSampleUser);
-  $('#add-task').addEventListener('click', ()=>openTaskDialog('today'));
-  $('#add-task-tomorrow').addEventListener('click', ()=>openTaskDialog('tomorrow'));
-  $('#cancel-task').addEventListener('click', closeTaskDialog);
-  $('#save-task').addEventListener('click', saveTaskFromDialog);
-  $$('#tab-content .tabview'); // ensure exists
-  document.querySelectorAll('.tab').forEach(t=>{
-    t.addEventListener('click', ()=>{ document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active'); switchTab(t.dataset.tab);});
-  });
-  $('#request-notif').addEventListener('click', requestNotif);
-  $('#export-json').addEventListener('click', exportCurrentUserJSON);
-  $('#download-all').addEventListener('click', downloadAllDataZip);
-  $('#auth-modal').classList.add('hidden');
-  $('#file-input').addEventListener('change', handleImportFile);
-  $('#import-json').addEventListener('click', ()=>$('#file-input').click());
-  $('#activate-tomorrow').addEventListener('click', activateTomorrow);
-  $('#logout').addEventListener('click', ()=>{ currentUser=null; renderWelcome(); });
-  $('#delete-account').addEventListener('click', deleteDemoAccount);
-  $('#create-sample-user').addEventListener('animationend', ()=>{});
-  // load audio
-  window.ding = $('#ding-sound');
+// دالة عرض المهام
+function renderTasks() {
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    tasksList.innerHTML = "";
+    tasks.forEach(task => {
+        const li = document.createElement("li");
+        li.textContent = `${task.title} - ${task.date} ${task.time} (${task.duration} دقيقة)`;
+        tasksList.appendChild(li);
+    });
 }
 
-function renderWelcome(){
-  if(!currentUser){ $('#welcome').classList.remove('hidden'); $('#app').classList.add('hidden'); $('#auth-msg').textContent=''; } 
-  else { $('#welcome').classList.add('hidden'); $('#app').classList.remove('hidden'); renderApp(); }
+// ربط الفورم مع الدالة
+if (taskForm) {
+    taskForm.addEventListener("submit", saveTask);
 }
 
-// Auth
-let authMode = 'signup';
-function openAuth(){ $('#auth-modal').classList.remove('hidden'); $('#auth-title').textContent = authMode==='signup'?'تسجيل حساب جديد':'تسجيل الدخول'; }
-function closeAuth(){ $('#auth-modal').classList.add('hidden'); }
-function toggleAuthMode(){
-  authMode = authMode==='signup'?'login':'signup';
-  $('#auth-title').textContent = authMode==='signup'?'تسجيل حساب جديد':'تسجيل الدخول';
-  $('#auth-submit').textContent = authMode==='signup'?'إنشاء حساب':'تسجيل دخول';
-}
-function handleAuth(){
-  const username = $('#auth-username').value.trim();
-  const password = $('#auth-password').value;
-  const display = $('#auth-display').value || username;
-  if(!username || !password){ $('#auth-msg').textContent='الرجاء إدخال بيانات صحيحة'; return; }
-  if(authMode==='signup'){
-    if(DB.users[username]){ $('#auth-msg').textContent='المستخدم موجود بالفعل — جرّب تسجيل الدخول'; return; }
-    // create user object and per-user JSON structure
-    const user = { id: 'u_'+uid(6), username, display, created: nowISO(), tasks: [], tomorrow: [] , settings:{notif:true} };
-    DB.users[username]=user;
-    saveToLS();
-    currentUser = username;
-    closeAuth();
-    renderWelcome();
-    scheduleAllTasks();
-  } else {
-    const user = DB.users[username];
-    if(!user){ $('#auth-msg').textContent='المستخدم غير موجود'; return; }
-    // naive password check skipped (demo). In real app: never store plaintext passwords.
-    currentUser = username; closeAuth(); renderWelcome(); scheduleAllTasks();
-  }
-}
-
-// Sample user creation
-function createSampleUser(){
-  const sample = {
-    id: 'u_demo1', username:'demo@daily', display:'تجريبي', created:nowISO(),
-    tasks:[
-      {id:'t1',title:'اجتماع الفريق',date: new Date().toISOString().slice(0,10), time:'10:00',duration:45,notes:'اجتماع متابعة',done:false,notify:true},
-      {id:'t2',title:'مراجعة الكود',date:new Date().toISOString().slice(0,10), time:'14:30',duration:90,notes:'مهمة مهمة',done:false,notify:true}
+// عرض المهام عند التحميل
+renderTasks();
+</script>
     ],
     tomorrow:[
       {id:'tm1',title:'تحضير المحاضرة',date: new Date(Date.now()+24*3600e3).toISOString().slice(0,10), time:'09:00',duration:60,notes:'جهز الشيت',notify:false}
