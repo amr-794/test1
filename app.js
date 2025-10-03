@@ -1,113 +1,128 @@
-/* app.js — منظم اليوم (معدل: تسجيل/دخول ظاهر عند الدخول، إلغاء لا يغلق نافذة المهمة، وحفظ مهمات مضبوط)
-   ملاحظات:
-   - يتم حفظ كل البيانات محلياً في localStorage تحت dm_db
-   - عند الدخول لأول مرة سيظهر مودال التسجيل/تسجيل الدخول
-   - كلمات المرور تُخزن كـ SHA-256 إذا كانت API متاحة، وإلا ترجع لسلسلة PLAIN:
-*/
-
-'use strict';
-
-const STORAGE_KEYS = { db: 'dm_db', current: 'dm_currentUser' };
-let DB = { users: {} };
+// إدارة المستخدمين
 let currentUser = null;
 
-// مساعدة
-const $ = q => document.querySelector(q);
-const $$ = q => Array.from(document.querySelectorAll(q));
-function uid(len = 8) { return Math.random().toString(36).slice(2, 2 + len); }
-function nowISO() { return new Date().toISOString(); }
-
-// تحويل ArrayBuffer to hex
-function buf2hex(buffer) {
-  const bytes = new Uint8Array(buffer);
-  return Array.prototype.map.call(bytes, x => ('00' + x.toString(16)).slice(-2)).join('');
+function saveUsers(users) {
+  localStorage.setItem("users", JSON.stringify(users));
 }
 
-// Hash password using SubtleCrypto if موجود، وإلا fallback
-async function hashPassword(pwd) {
-  if (!pwd) return '';
-  try {
-    if (window.crypto && crypto.subtle && crypto.subtle.digest) {
-      const enc = new TextEncoder();
-      const buf = await crypto.subtle.digest('SHA-256', enc.encode(pwd));
-      return 'sha256$' + buf2hex(buf);
-    }
-  } catch (e) {
-    console.warn('crypto.subtle not available, fallback to plain storage');
-  }
-  return 'plain$' + pwd;
+function loadUsers() {
+  return JSON.parse(localStorage.getItem("users")) || [];
 }
 
-// تحميل DB من ملف data/users.json (إن أمكن) أو من localStorage
-async function loadDB() {
-  // محاولة تحميل ملف مُضمّن (لن يعمل على file:// في بعض المتصفحات — لذلك catch)
-  try {
-    const resp = await fetch('data/users.json');
-    if (resp.ok) {
-      const bundled = await resp.json();
-      if (bundled && bundled.users) {
-        DB = bundled;
-      }
-    }
-  } catch (e) {
-    // ignore — سيتم تحميل من localStorage
-  }
-  // دمج مع localStorage إن وجد
-  const ls = localStorage.getItem(STORAGE_KEYS.db);
-  if (ls) {
-    try {
-      const parsed = JSON.parse(ls);
-      DB = { ...DB, ...parsed };
-      if (!DB.users) DB.users = parsed.users || {};
-    } catch (e) {
-      console.warn('failed parse local DB', e);
-    }
-  }
-}
+// عناصر DOM
+const authScreen = document.getElementById("authScreen");
+const appScreen = document.getElementById("appScreen");
+const loginBtn = document.getElementById("loginBtn");
+const signupBtn = document.getElementById("signupBtn");
+const logoutBtn = document.getElementById("logoutBtn");
 
-function saveToLS() {
-  localStorage.setItem(STORAGE_KEYS.db, JSON.stringify(DB));
-}
+const taskForm = document.getElementById("taskForm");
+const cancelTaskBtn = document.getElementById("cancelTaskBtn");
+const tasksList = document.getElementById("tasksList");
 
-function setCurrentUser(username) {
-  currentUser = username;
-  if (username) localStorage.setItem(STORAGE_KEYS.current, username);
-  else localStorage.removeItem(STORAGE_KEYS.current);
-  renderWelcome();
-}
+// تسجيل الدخول
+loginBtn.addEventListener("click", () => {
+  const username = document.getElementById("authUsername").value.trim();
+  const password = document.getElementById("authPassword").value;
 
-// INIT
-async function init() {
-  await loadDB();
-  bindUI();
+  let users = loadUsers();
+  const user = users.find(u => u.username === username && u.password === password);
 
-  const stored = localStorage.getItem(STORAGE_KEYS.current);
-  if (stored && DB.users && DB.users[stored]) {
-    currentUser = stored;
+  if (user) {
+    currentUser = user.username;
+    showApp();
   } else {
-    currentUser = null;
+    alert("❌ اسم المستخدم أو كلمة المرور غير صحيحة");
+  }
+});
+
+// إنشاء حساب جديد
+signupBtn.addEventListener("click", () => {
+  const username = document.getElementById("authUsername").value.trim();
+  const password = document.getElementById("authPassword").value;
+
+  if (!username || !password) {
+    alert("يرجى إدخال جميع البيانات");
+    return;
   }
 
-  // إذا لا يوجد مستخدم حالياً، أظهر مودال التسجيل فوراً
-  renderWelcome();
-  if (!currentUser) {
-    openAuth('signup'); // يفتح عند الدخول
-  } else {
-    scheduleAllTasks();
+  let users = loadUsers();
+  if (users.find(u => u.username === username)) {
+    alert("⚠️ اسم المستخدم موجود بالفعل");
+    return;
   }
+
+  users.push({ username, password, tasks: [] });
+  saveUsers(users);
+  alert("✅ تم إنشاء الحساب بنجاح! قم بتسجيل الدخول الآن");
+});
+
+// تسجيل الخروج
+logoutBtn.addEventListener("click", () => {
+  currentUser = null;
+  appScreen.classList.add("hidden");
+  authScreen.classList.remove("hidden");
+});
+
+// إظهار التطبيق
+function showApp() {
+  authScreen.classList.add("hidden");
+  appScreen.classList.remove("hidden");
+  renderTasks();
 }
 
-// UI bindings
-function bindUI() {
-  $('#open-signup').addEventListener('click', () => openAuth('signup'));
-  $('#auth-toggle').addEventListener('click', toggleAuthMode);
-  $('#auth-submit').addEventListener('click', handleAuth);
-  $('#auth-close').addEventListener('click', () => closeAuth(false)); // اغلاق مودال auth
-  $('#create-sample-user').addEventListener('click', createSampleUser);
-  $('#add-task').addEventListener('click', () => openTaskDialog('today'));
-  $('#add-task-tomorrow').addEventListener('click', () => openTaskDialog('tomorrow'));
-  $('#task-close').addEventListener('click', () => closeTaskDialog(true));
-  $('#cancel-task').addEventListener('click', cancelTaskDialog); // الآن لا يغلق النافذة
+// إضافة مهمة
+taskForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const title = document.getElementById("taskTitle").value.trim();
+  const date = document.getElementById("taskDate").value;
+  const time = document.getElementById("taskTime").value;
+  const duration = document.getElementById("taskDuration").value;
+  const note = document.getElementById("taskNote").value.trim();
+
+  if (!title || !date || !time) {
+    alert("يرجى إدخال البيانات الأساسية (عنوان، تاريخ، وقت)");
+    return;
+  }
+
+  let users = loadUsers();
+  let user = users.find(u => u.username === currentUser);
+  if (!user) return;
+
+  user.tasks.push({
+    id: Date.now(),
+    title,
+    date,
+    time,
+    duration,
+    note
+  });
+
+  saveUsers(users);
+  renderTasks();
+  taskForm.reset();
+  alert("✅ تمت إضافة المهمة!");
+});
+
+// إلغاء إضافة مهمة
+cancelTaskBtn.addEventListener("click", () => {
+  taskForm.reset();
+});
+
+// عرض المهام
+function renderTasks() {
+  let users = loadUsers();
+  let user = users.find(u => u.username === currentUser);
+  if (!user) return;
+
+  tasksList.innerHTML = "";
+  user.tasks.forEach(task => {
+    const li = document.createElement("li");
+    li.textContent = `${task.title} — ${task.date} ${task.time} (${task.duration} دقيقة)`;
+    tasksList.appendChild(li);
+  });
+}
   $('#save-task').addEventListener('click', saveTaskFromDialog);
   $$('.tab').forEach(t => {
     t.addEventListener('click', () => {
