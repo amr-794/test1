@@ -19,10 +19,6 @@
     "nanoid": "4.0.0",
     "cookie": "0.5.0",
     "uuid": "9.0.0",
-    "react-beautiful-dnd": "13.1.0"
+    "react-beautiful-dnd": "^13.1.0"
   }
 }
-
-"scripts": {
-  "start": "react-scripts start",
-  "build": "CI=false npm install --legacy-peer-deps && react-scripts build",
