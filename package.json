@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+  "build": "CI=false npm install --legacy-peer-deps && react-scripts build",
+  "start": "react-scripts start",
     "lint": "next lint"
   },
   "dependencies": {
@@ -22,3 +22,7 @@
     "react-beautiful-dnd": "13.1.0"
   }
 }
+
+"scripts": {
+  "start": "react-scripts start",
+  "build": "CI=false npm install --legacy-peer-deps && react-scripts build",
