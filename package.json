@@ -2,27 +2,24 @@
   "name": "audio-platform",
   "version": "1.0.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-  "build": "CI=false npm install --legacy-peer-deps && react-scripts build",
-  "start": "react-scripts start",
-    "lint": "next lint"
-  },
   "dependencies": {
-    "next": "14.0.0",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "axios": "^1.6.7",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-scripts": "5.0.1",
-    "tailwindcss": "3.4.0",
-    "autoprefixer": "10.4.14",
-    "postcss": "8.4.24",
-    "formidable": "2.1.2",
-    "nanoid": "4.0.0",
-    "cookie": "0.5.0",
-    "uuid": "9.0.0",
-    "react-beautiful-dnd": "^13.1.0"
-  }
+    "react-router-dom": "^6.23.1",
+    "react-beautiful-dnd": "^13.1.1",
+    "react-icons": "^4.12.0",
+    "react-scripts": "5.0.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "CI=false npm install --legacy-peer-deps && react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
   "engines": {
-  "node": ">=18"
+    "node": ">=18"
   }
 }
